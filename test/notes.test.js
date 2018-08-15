@@ -67,6 +67,20 @@ describe('reset DB', function() {
 					expect(new Date(body.updatedAt)).to.eql(data.updatedAt);
 				});
 		});
+		it('should return error if no title provided', function() {
+			const newItem = {
+				content: 'There is content'
+			};
+			let res;
+			return chai
+				.request(app)
+				.post('/api/notes')
+				.send(newItem)
+				.then(function(_res) {
+					res = _res;
+					expect(res).to.have.status(400);
+				});
+		});
 	});
 
 	describe('GET /api/notes/:id', function() {
@@ -98,6 +112,13 @@ describe('reset DB', function() {
 					expect(new Date(res.body.updatedAt)).to.eql(data.updatedAt);
 				});
 		});
+		// it('should error when no id matches', function() {
+		// 	let data;
+		// 	const badId = 12;
+		// 	return Note.findById(badId).then(res => {
+		// 		expect(res).to.have.status(404);
+		// 	});
+		// });
 	});
 
 	describe('GET /api/notes', function() {

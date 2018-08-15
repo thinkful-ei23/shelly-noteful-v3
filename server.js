@@ -6,14 +6,15 @@ const mongoose = require('mongoose');
 
 const { PORT, MONGODB_URI } = require('./config');
 
-
 // Create an Express application
 const app = express();
 
 // Log all requests. Skip logging during
-app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'common', {
-	skip: () => process.env.NODE_ENV === 'test'
-}));
+app.use(
+	morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'common', {
+		skip: () => process.env.NODE_ENV === 'test'
+	})
+);
 
 // Create a static webserver
 app.use(express.static('public'));
@@ -22,7 +23,7 @@ app.use(express.static('public'));
 app.use(express.json());
 
 // Mount routers
-const notesRouter = require('./routes/notes')
+const notesRouter = require('./routes/notes');
 app.use('/api/notes', notesRouter);
 
 // Custom 404 Not Found route handler
@@ -44,22 +45,28 @@ app.use((err, req, res, next) => {
 });
 
 if (process.env.NODE_ENV !== 'test') {
-	mongoose.connect(MONGODB_URI)
+	mongoose
+		.connect(MONGODB_URI)
 		.then(instance => {
 			const conn = instance.connections[0];
-			console.info(`Connected to: mongodb://${conn.host}:${conn.port}/${conn.name}`);
-		}).catch(err => {
+			console.info(
+				`Connected to: mongodb://${conn.host}:${conn.port}/${conn.name}`
+			);
+		})
+		.catch(err => {
 			console.error(`ERROR: ${err.message}`);
 			console.error('\n === Did you remember to start `mongod`? === \n');
 			console.error(err);
 		});
 
 	// Listen for incoming connections
-	app.listen(PORT, function () {
-		console.info(`Server listening on ${this.address().port}`);
-	}).on('error', err => {
-		console.error(err);
-	});
+	app
+		.listen(PORT, function() {
+			console.info(`Server listening on ${this.address().port}`);
+		})
+		.on('error', err => {
+			console.error(err);
+		});
 }
 
 module.exports = app; // Export for testing

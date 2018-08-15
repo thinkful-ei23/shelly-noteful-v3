@@ -11,7 +11,7 @@ const seedData = require('../db/seed/notes');
 const expect = chai.expect;
 chai.use(chaiHttp);
 
-describe('reset DB', function() {
+describe('Noteful API - Notes', function() {
 	before(function() {
 		return mongoose
 			.connect(TEST_MONGODB_URI)

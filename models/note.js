@@ -5,13 +5,15 @@ const noteSchema = new mongoose.Schema({
 	content: String
 });
 
+//create takes current timestamp & when updated, takes the newer timestamp
 noteSchema.set('timestamps', true);
 
 noteSchema.set('toObject', {
 	virtuals: true,
+	//mongo's internal control (controlled by mongo); whether the document was updated or not; it's own way of managing information
 	versionKey: false,
 	transform: (doc, ret) => {
-		delete ret.id;
+		delete ret._id;
 	}
 });
 

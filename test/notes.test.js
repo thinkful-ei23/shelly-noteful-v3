@@ -1,3 +1,5 @@
+'use strict';
+
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const mongoose = require('mongoose');
@@ -6,7 +8,8 @@ const app = require('../server');
 const { TEST_MONGODB_URI } = require('../config');
 
 const Note = require('../models/note');
-const seedData = require('../db/seed/notes');
+
+const seedNotes = require('../db/seed/notes');
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -19,7 +22,7 @@ describe('Noteful API - Notes', function() {
 	});
 
 	beforeEach(function() {
-		return Note.insertMany(seedData);
+		return Note.insertMany(seedNotes);
 	});
 
 	this.afterEach(function() {
@@ -112,13 +115,14 @@ describe('Noteful API - Notes', function() {
 					expect(new Date(res.body.updatedAt)).to.eql(data.updatedAt);
 				});
 		});
-		// it('should error when no id matches', function() {
-		// 	let data;
-		// 	const badId = 12;
-		// 	return Note.findById(badId).then(res => {
-		// 		expect(res).to.have.status(404);
-		// 	});
-		// });
+		it('should error when id is not valid', function() {
+			return chai
+				.request(app)
+				.get('/api/notes/NOT-VALID')
+				.then(res => {
+					expect(res).to.have.status(400);
+				});
+		});
 	});
 
 	describe('GET /api/notes', function() {

@@ -8,24 +8,31 @@ const Note = require('../models/note');
 router.get('/', (req, res, next) => {
 	const { searchTerm } = req.query;
 	let filter = {};
-		
+
 	if (searchTerm) {
-		filter.title = {$regex: searchTerm, $options: 'i'};
+		filter.title = { $regex: searchTerm, $options: 'i' };
 	}
 
 	Note.find(filter)
-		.sort({updatedAt: 'desc'})
+		.sort({ updatedAt: 'desc' })
 		.then(results => {
 			res.json(results);
-		}).catch(err => {
+		})
+		.catch(err => {
 			next(err);
 		});
-
 });
 
 /* ========== GET/READ A SINGLE ITEM ========== */
 router.get('/:id', (req, res, next) => {
 	const { id } = req.params;
+	console.log(id);
+	console.log(typeof id);
+	// if (typeof id !== 'number') {
+	// 	const err = new Error('Id is not a number');
+	// 	err.status = 422;
+	// 	return next(err);
+	//}
 
 	Note.findById(id)
 		.then(result => {
@@ -42,14 +49,14 @@ router.get('/:id', (req, res, next) => {
 
 /* ========== POST/CREATE AN ITEM ========== */
 router.post('/', (req, res, next) => {
-	const {title, content} = req.body;
+	const { title, content } = req.body;
 
 	const newObj = {
 		title: title,
 		content: content
 	};
 
-	if(!newObj.title){
+	if (!newObj.title) {
 		const err = new Error('Missing `title` in request body');
 		err.status = 400;
 		return next(err);
@@ -58,41 +65,44 @@ router.post('/', (req, res, next) => {
 	Note.create(newObj)
 		.then(result => {
 			res.json(result);
-		}).catch(err => {
+		})
+		.catch(err => {
 			next(err);
 		});
 });
 
 /* ========== PUT/UPDATE A SINGLE ITEM ========== */
 router.put('/:id', (req, res, next) => {
-	const {title, content} = req.body;
-	const {id} = req.params;
+	const { title, content } = req.body;
+	const { id } = req.params;
 
 	const newObj = {
 		title: title,
 		content: content
 	};
 
-	if(!newObj.title){
+	if (!newObj.title) {
 		const err = new Error('Missing `title` in request body');
 		err.status = 400;
 		return next(err);
 	}
 
-	Note.findByIdAndUpdate(id, newObj, {new: true})
+	Note.findByIdAndUpdate(id, newObj, { new: true })
 		.then(result => {
 			res.json(result);
-		}).catch(err => next(err));
-
+		})
+		.catch(err => next(err));
 });
 
 /* ========== DELETE/REMOVE A SINGLE ITEM ========== */
 router.delete('/:id', (req, res, next) => {
-	const {id} = req.params;
+	const { id } = req.params;
 
-	return Note.findByIdAndRemove(id).then(() => {
-		res.json('deleted');
-	}).catch(err => next(err));
+	return Note.findByIdAndRemove(id)
+		.then(() => {
+			res.json('deleted');
+		})
+		.catch(err => next(err));
 });
 
 module.exports = router;

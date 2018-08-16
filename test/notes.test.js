@@ -116,11 +116,12 @@ describe('Noteful API - Notes', function() {
 				});
 		});
 		it('should error when id is not valid', function() {
+			let id = '000000000000000000000040';
 			return chai
 				.request(app)
-				.get('/api/notes/NOT-VALID')
+				.get(`/api/notes/${id}`)
 				.then(res => {
-					expect(res).to.have.status(400);
+					expect(res).to.have.status(404);
 				});
 		});
 	});

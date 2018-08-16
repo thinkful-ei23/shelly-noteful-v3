@@ -27,7 +27,10 @@ router.get('/', (req, res, next) => {
 router.get('/:id', (req, res, next) => {
 	const { id } = req.params;
 	console.log(id);
+	// parseInt() = if NaN, means not able to parse 
 	console.log(typeof id);
+	
+	// javascript = loose type
 	// if (typeof id !== 'number') {
 	// 	const err = new Error('Id is not a number');
 	// 	err.status = 422;

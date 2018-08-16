@@ -1,10 +1,10 @@
 language: node_js
 node_js: node
 services: mongodb
-deploy:
-  provider: heroku
-  api_key:
-    secure: J+jCmb5XmqXmARtZQIn+EifT3A6xflK4bWE/IhDBXdV3H1vO6UsZnL8Y6x72m3b89RyUIr2FPdXP4pUT1vhPjGaWyWTcCqdyif8zhpWhK2diozkF+/paZ4UPgULGudUbQ0ahyPTcB799r6Tqc+tPRXGC/XklJCQfGz0jr1G1CmUAA1d6gAlnlqj3LUwcuqe2cTwQrgdZzbvVIA6r8rCx6Q7LzsE+bnYHJc5SgEKOv80E+ItWykypWYWIamFAFPsHwyrcm/8sNcysc9Mgnq6wK3p++UBJ706sRoZK2KBrEb4n8CDvEkwKaFSFpOLZcVgcgg69nx3tnq8eQRq/cb1AXOHXn9J9fuWTAQYydnOXB0sFfnKg5wBNQNuLmGBRSmrw6qMepAsrn9dPWENHgvd1EPc97hQ76fEFUulOklWo6HEjsfXz79nWJ53ivtdhuVI/DVav4iOWl3XmiMjFBFs76QYR5K+KXqaHmrpvtbnaWGM4lrGgylj109aMoYh4sbVew1BgcUDJ00Iu3mk/ZilDhlLd9cKkfF8fB4v7zyraXT9aW9/l6OgF/AhJMakvcKXsmler/0c+EDOtxnYtaag8FkLdiCdLNnWf6juRYdxGrQVbl6hzrNRUHLzsr+mc9LSfeg9U+TKNU4juVG0uPx7jBo5wZcUrAsLoCaswEaRo780=
-  app: shelly-noteful-v3
-  on:
-    repo: thinkful-ei23/shelly-noteful-v3
+# deploy:
+#   provider: heroku
+#   api_key:
+#     secure: J+jCmb5XmqXmARtZQIn+EifT3A6xflK4bWE/IhDBXdV3H1vO6UsZnL8Y6x72m3b89RyUIr2FPdXP4pUT1vhPjGaWyWTcCqdyif8zhpWhK2diozkF+/paZ4UPgULGudUbQ0ahyPTcB799r6Tqc+tPRXGC/XklJCQfGz0jr1G1CmUAA1d6gAlnlqj3LUwcuqe2cTwQrgdZzbvVIA6r8rCx6Q7LzsE+bnYHJc5SgEKOv80E+ItWykypWYWIamFAFPsHwyrcm/8sNcysc9Mgnq6wK3p++UBJ706sRoZK2KBrEb4n8CDvEkwKaFSFpOLZcVgcgg69nx3tnq8eQRq/cb1AXOHXn9J9fuWTAQYydnOXB0sFfnKg5wBNQNuLmGBRSmrw6qMepAsrn9dPWENHgvd1EPc97hQ76fEFUulOklWo6HEjsfXz79nWJ53ivtdhuVI/DVav4iOWl3XmiMjFBFs76QYR5K+KXqaHmrpvtbnaWGM4lrGgylj109aMoYh4sbVew1BgcUDJ00Iu3mk/ZilDhlLd9cKkfF8fB4v7zyraXT9aW9/l6OgF/AhJMakvcKXsmler/0c+EDOtxnYtaag8FkLdiCdLNnWf6juRYdxGrQVbl6hzrNRUHLzsr+mc9LSfeg9U+TKNU4juVG0uPx7jBo5wZcUrAsLoCaswEaRo780=
+#   app: shelly-noteful-v3
+#   on:
+#     repo: thinkful-ei23/shelly-noteful-v3

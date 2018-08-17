@@ -58,7 +58,8 @@ describe('Noteful API - Notes', function() {
 						'title',
 						'content',
 						'createdAt',
-						'updatedAt'
+						'updatedAt',
+						'tags'
 					);
 					return Note.findById(body.id);
 				})
@@ -106,7 +107,8 @@ describe('Noteful API - Notes', function() {
 						'content',
 						'createdAt',
 						'updatedAt',
-						'folderId'
+						'folderId',
+						'tags'
 					);
 
 					expect(res.body.id).to.equal(data.id);
@@ -167,7 +169,8 @@ describe('Noteful API - Notes', function() {
 						'content',
 						'createdAt',
 						'updatedAt',
-						'folderId'
+						'folderId',
+						'tags'
 					);
 
 					return Note.findById(updateItem.id);

@@ -11,7 +11,7 @@ router.get('/', (req, res, next) => {
 	let filter = {};
 
 	if (searchTerm) {
-		console.log(searchTerm);
+		// console.log(searchTerm);
 		// if (searchTerm) {
 		// 	filter = { filterId: { $regex: searchTerm } };
 		// }

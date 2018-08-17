@@ -80,7 +80,7 @@ describe('Noteful API - Folders', function() {
 				.then(_data => {
 					data = _data;
 
-					return chai.request(app).get(`folders/${data.id}`);
+					return chai.request(app).get(`/folders/${data.id}`);
 				})
 				.then(res => {
 					expect(res).to.have.status(200);
@@ -97,12 +97,11 @@ describe('Noteful API - Folders', function() {
 		});
 
 		it('should return error when id is not valid', function() {
-			let id = '000000000000123000000040';
 			return chai
 				.request(app)
-				.get(`folders/${id}`)
+				.get(`/folders/not-valid`)
 				.then(res => {
-					expect(res).to.have.status(404);
+					expect(res).to.have.status(400);
 				});
 		});
 	});

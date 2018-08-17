@@ -7,9 +7,14 @@ const Note = require('../models/note');
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/', (req, res, next) => {
 	const { searchTerm } = req.query;
+	console.log(req.query);
 	let filter = {};
 
 	if (searchTerm) {
+		console.log(searchTerm);
+		// if (searchTerm) {
+		// 	filter = { filterId: { $regex: searchTerm } };
+		// }
 		filter.title = { $regex: searchTerm, $options: 'i' };
 	}
 
@@ -27,9 +32,9 @@ router.get('/', (req, res, next) => {
 router.get('/:id', (req, res, next) => {
 	const { id } = req.params;
 	console.log(id);
-	// parseInt() = if NaN, means not able to parse 
+	// parseInt() = if NaN, means not able to parse
 	console.log(typeof id);
-	
+
 	// javascript = loose type
 	// if (typeof id !== 'number') {
 	// 	const err = new Error('Id is not a number');

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Folder = require('../models/folder');
+const Note = require('../models/note');
 
 //get all
 
@@ -90,6 +91,13 @@ router.delete('/:id', (req, res, next) => {
 	const { id } = req.params;
 
 	Folder.findByIdAndRemove(id)
+		// .then(result => {
+		// 	return Note.update(
+		// 		{ folderId: id },
+		// 		{ $unset: { folderId: 1 } },
+		// 		{ multi: true }
+		// 	);
+		// })
 		.then(result => {
 			res.status(204).end();
 		})

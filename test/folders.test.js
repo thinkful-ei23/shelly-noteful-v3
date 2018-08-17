@@ -1,0 +1,75 @@
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const mongoose = require('mongoose');
+
+const app = require('../server');
+const { TEST_MONGODB_URI } = require('../config');
+
+const Folder = require('../models/folder');
+const seedFolder = require('../db/seed/folders');
+
+const expect = chai.expect;
+chai.use(chaiHttp);
+
+describe('Noteful API - Folders', function() {
+	before(function() {
+		return mongoose
+			.connect(TEST_MONGODB_URI)
+			.then(() => mongoose.connection.db.dropDatabase());
+	});
+
+	beforeEach(function() {
+		return Folder.insertMany(seedFolder);
+	});
+
+	this.afterEach(function() {
+		return mongoose.connection.db.dropDatabase();
+	});
+
+	after(function() {
+		return mongoose.disconnect();
+	});
+
+	describe('POST /folders', function() {
+		it('should create and return a new item when provided valid data', function() {
+			const newFolder = { name: 'Aretha Franklin' };
+
+			let res;
+			return chai
+				.request(app)
+				.post('/folders')
+				.send(newFolder)
+				.then(function(_res) {
+					res = _res;
+					expect(res).to.have.status(201);
+					expect(res).to.have.header('location');
+					expect(res).to.be.json;
+					expect(res.body).to.be.a('object');
+					expect(res.body).to.have.keys('name', 'createdAt', 'updatedAt', 'id');
+
+					return Folder.findById(res.body.id);
+				})
+				.then(data => {
+					expect(res.body.id).to.equal(data.id);
+					expect(res.body.name).to.equal(data.name);
+					expect(new Date(res.body.updatedAt)).to.eql(data.updatedAt);
+					expect(new Date(res.body.createdAt)).to.eql(data.createdAt);
+				});
+		});
+
+		it('should return error if no name provided', function() {
+			const newFolder = {};
+
+			let res;
+			return chai
+				.request(app)
+				.post('/folders')
+				.send(newFolder)
+				.then(function(_res) {
+					res = _res;
+					expect(res).to.have.status(400);
+					expect(res).to.have.be.an('object');
+				});
+		});
+	});
+});

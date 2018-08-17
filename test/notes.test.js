@@ -105,7 +105,8 @@ describe('Noteful API - Notes', function() {
 						'title',
 						'content',
 						'createdAt',
-						'updatedAt'
+						'updatedAt',
+						'folderId'
 					);
 
 					expect(res.body.id).to.equal(data.id);
@@ -165,7 +166,8 @@ describe('Noteful API - Notes', function() {
 						'title',
 						'content',
 						'createdAt',
-						'updatedAt'
+						'updatedAt',
+						'folderId'
 					);
 
 					return Note.findById(updateItem.id);

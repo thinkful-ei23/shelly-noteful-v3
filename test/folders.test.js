@@ -99,9 +99,70 @@ describe('Noteful API - Folders', function() {
 		it('should return error when id is not valid', function() {
 			return chai
 				.request(app)
-				.get(`/folders/not-valid`)
+				.get('/folders/not-valid')
 				.then(res => {
 					expect(res).to.have.status(400);
+				});
+		});
+	});
+
+	describe('GET /folders/', function() {
+		return Promise.all([Folder.find(), chai.request(app).get('/folders')]).then(
+			([data, res]) => {
+				expect(res).to.have.status(201);
+				expect(res).to.be.json;
+				expect(res.body).to.be.an('array');
+				expect(res.body).to.have.length(data.length);
+			}
+		);
+	});
+
+	describe('PUT /folders/:id', function() {
+		it('should update and return item with new data when provided valid data', function() {
+			const updateFolder = {
+				name: 'Annie Lennox'
+			};
+			let res;
+			let body;
+			return Folder.findOne()
+				.then(function(folder) {
+					updateFolder.id = folder.id;
+
+					return chai
+						.request(app)
+						.put(`/folders/${folder.id}`)
+						.send(updateFolder);
+				})
+				.then(function(_res) {
+					res = _res;
+					body = res.body;
+					expect(res).to.have.status(200);
+					expect(res).to.be.json;
+					expect(body).to.be.an('object');
+					expect(body).to.have.keys('id', 'name', 'createdAt', 'updatedAt');
+
+					return Folder.findById(updateFolder.id);
+				})
+				.then(function(folder) {
+					expect(folder.name).to.equal(updateFolder.name);
+					expect(folder.title).to.equal(updateFolder.title);
+				});
+		});
+	});
+
+	describe('DELETE /folders/:id', function() {
+		it('should delete and return status 204', function() {
+			let data;
+			let res;
+			return Folder.findOne()
+				.then(_data => {
+					data = _data;
+
+					return chai.request(app).delete(`/folders/${data.id}`);
+				})
+				.then(function(_res) {
+					res = _res;
+					expect(res).to.have.status(204);
 				});
 		});
 	});

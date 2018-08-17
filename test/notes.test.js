@@ -10,6 +10,7 @@ const { TEST_MONGODB_URI } = require('../config');
 const Note = require('../models/note');
 
 const seedNotes = require('../db/seed/notes');
+const seedFolders = require('../db/seed/folders');
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -22,7 +23,7 @@ describe('Noteful API - Notes', function() {
 	});
 
 	beforeEach(function() {
-		return Note.insertMany(seedNotes);
+		return Note.insertMany(seedNotes, seedFolders);
 	});
 
 	this.afterEach(function() {
@@ -38,7 +39,8 @@ describe('Noteful API - Notes', function() {
 			const newItem = {
 				title: 'The best article about cats ever!',
 				content:
-					'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...'
+					'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+				folderId: '111111111111111111111101'
 			};
 
 			let res;
@@ -50,13 +52,14 @@ describe('Noteful API - Notes', function() {
 				.then(function(_res) {
 					res = _res;
 					body = res.body;
-					expect(res).to.have.status(200);
+					expect(res).to.have.status(201);
 					expect(res).to.be.json;
 					expect(body).to.be.a('object');
 					expect(body).to.have.keys(
 						'id',
 						'title',
 						'content',
+						'folderId',
 						'createdAt',
 						'updatedAt',
 						'tags'
@@ -69,6 +72,7 @@ describe('Noteful API - Notes', function() {
 					expect(body.content).to.equal(data.content);
 					expect(new Date(body.createdAt)).to.eql(data.createdAt);
 					expect(new Date(body.updatedAt)).to.eql(data.updatedAt);
+					expect(body.tags).to.eql(data.tags);
 				});
 		});
 		it('should return error if no title provided', function() {
@@ -144,7 +148,9 @@ describe('Noteful API - Notes', function() {
 		it('should update and return item with new data when provided valid data', function() {
 			const updateItem = {
 				title: 'This has been changed',
-				content: 'Oh, the modification'
+				content: 'Oh, the modification',
+				folderId: '111111111111111111111100',
+				tags: ['222222222222222222222200', '222222222222222222222202']
 			};
 			let res;
 			let body;
@@ -176,8 +182,26 @@ describe('Noteful API - Notes', function() {
 					return Note.findById(updateItem.id);
 				})
 				.then(function(note) {
+					expect(note.id).to.equal(updateItem.id);
 					expect(note.title).to.equal(updateItem.title);
 					expect(note.content).to.equal(updateItem.content);
+				});
+		});
+	});
+
+	describe('DELETE /api/notes/:id', function() {
+		it('should delete and return status 204', function() {
+			let data;
+			let res;
+			return Note.findOne()
+				.then(_data => {
+					data = _data;
+
+					return chai.request(app).delete(`/api/notes/${data.id}`);
+				})
+				.then(function(_res) {
+					res = _res;
+					expect(res).to.have.status(204);
 				});
 		});
 	});

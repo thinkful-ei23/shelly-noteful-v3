@@ -7,7 +7,7 @@ const Note = require('../models/note');
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/', (req, res, next) => {
 	const { searchTerm } = req.query;
-	console.log(req.query);
+	// console.log(req.query);
 	let filter = {};
 
 	if (searchTerm) {
@@ -31,9 +31,9 @@ router.get('/', (req, res, next) => {
 /* ========== GET/READ A SINGLE ITEM ========== */
 router.get('/:id', (req, res, next) => {
 	const { id } = req.params;
-	console.log(id);
+	// console.log(id);
 	// parseInt() = if NaN, means not able to parse
-	console.log(typeof id);
+	// console.log(typeof id);
 
 	// javascript = loose type
 	// if (typeof id !== 'number') {

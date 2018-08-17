@@ -72,4 +72,38 @@ describe('Noteful API - Folders', function() {
 				});
 		});
 	});
+
+	describe('GET /folders/:id', function() {
+		it('should return correct folder', function() {
+			let data;
+			return Folder.findOne()
+				.then(_data => {
+					data = _data;
+
+					return chai.request(app).get(`folders/${data.id}`);
+				})
+				.then(res => {
+					expect(res).to.have.status(200);
+					expect(res).to.be.json;
+
+					expect(res.body).to.be.an('object');
+					expect(res.body).to.have.keys('id', 'name', 'createdAt', 'updatedAt');
+
+					expect(res.body.id).to.equal(data.id);
+					expect(res.body.name).to.equal(data.name);
+					expect(new Date(res.body.createdAt)).to.eql(data.createdAt);
+					expect(new Date(res.body.updatedAt)).to.eql(data.updatedAt);
+				});
+		});
+
+		it('should return error when id is not valid', function() {
+			let id = '000000000000123000000040';
+			return chai
+				.request(app)
+				.get(`folders/${id}`)
+				.then(res => {
+					expect(res).to.have.status(404);
+				});
+		});
+	});
 });

@@ -30,14 +30,14 @@ describe('Noteful API - Folders', function() {
 		return mongoose.disconnect();
 	});
 
-	describe('POST /tags', function() {
+	describe('POST /api/tags', function() {
 		it('should create and return a new item when provided valid data', function() {
 			const newTag = { name: 'James Earl Jones' };
 
 			let res;
 			return chai
 				.request(app)
-				.post('/tags')
+				.post('/api/tags')
 				.send(newTag)
 				.then(function(_res) {
 					res = _res;
@@ -63,7 +63,7 @@ describe('Noteful API - Folders', function() {
 			let res;
 			return chai
 				.request(app)
-				.post('/tags')
+				.post('/api/tags')
 				.send(newFolder)
 				.then(function(_res) {
 					res = _res;
@@ -73,14 +73,14 @@ describe('Noteful API - Folders', function() {
 		});
 	});
 
-	describe('GET /tags/:id', function() {
+	describe('GET /api/tags/:id', function() {
 		it('should return correct folder', function() {
 			let data;
 			return Tag.findOne()
 				.then(_data => {
 					data = _data;
 
-					return chai.request(app).get(`/tags/${data.id}`);
+					return chai.request(app).get(`/api/tags/${data.id}`);
 				})
 				.then(res => {
 					expect(res).to.have.status(200);
@@ -99,15 +99,15 @@ describe('Noteful API - Folders', function() {
 		it('should return error when id is not valid', function() {
 			return chai
 				.request(app)
-				.get('/tags/not-valid')
+				.get('/api/tags/not-valid')
 				.then(res => {
 					expect(res).to.have.status(400);
 				});
 		});
 	});
 
-	describe('GET /tags/', function() {
-		return Promise.all([Tag.find(), chai.request(app).get('/tags')]).then(
+	describe('GET /api/tags/', function() {
+		return Promise.all([Tag.find(), chai.request(app).get('/api/tags')]).then(
 			([data, res]) => {
 				expect(res).to.have.status(201);
 				expect(res).to.be.json;
@@ -117,7 +117,7 @@ describe('Noteful API - Folders', function() {
 		);
 	});
 
-	describe('PUT /tags/:id', function() {
+	describe('PUT /api/tags/:id', function() {
 		it('should update and return item with new data when provided valid data', function() {
 			const updateTag = {
 				name: 'Eurythmics'
@@ -130,7 +130,7 @@ describe('Noteful API - Folders', function() {
 
 					return chai
 						.request(app)
-						.put(`/tags/${folder.id}`)
+						.put(`/api/tags/${folder.id}`)
 						.send(updateTag);
 				})
 				.then(function(_res) {
@@ -150,7 +150,7 @@ describe('Noteful API - Folders', function() {
 		});
 	});
 
-	describe('DELETE /tags/:id', function() {
+	describe('DELETE /api/tags/:id', function() {
 		it('should delete and return status 204', function() {
 			let data;
 			let res;
@@ -158,7 +158,7 @@ describe('Noteful API - Folders', function() {
 				.then(_data => {
 					data = _data;
 
-					return chai.request(app).delete(`/tags/${data.id}`);
+					return chai.request(app).delete(`/api/tags/${data.id}`);
 				})
 				.then(function(_res) {
 					res = _res;

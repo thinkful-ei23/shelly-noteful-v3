@@ -6,8 +6,8 @@ $(document).ready(function() {
 
 	Promise.all([
 		api.search('/api/notes'),
-		api.search('/folders'),
-		api.search('/tags')
+		api.search('/api/folders'),
+		api.search('/api/tags')
 	]).then(([notes, folders, tags]) => {
 		store.notes = notes;
 		store.folders = folders;

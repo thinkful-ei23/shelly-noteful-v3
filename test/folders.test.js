@@ -30,14 +30,14 @@ describe('Noteful API - Folders', function() {
 		return mongoose.disconnect();
 	});
 
-	describe('POST /folders', function() {
+	describe('POST /api/folders', function() {
 		it('should create and return a new item when provided valid data', function() {
 			const newFolder = { name: 'Aretha Franklin' };
 
 			let res;
 			return chai
 				.request(app)
-				.post('/folders')
+				.post('/api/folders')
 				.send(newFolder)
 				.then(function(_res) {
 					res = _res;
@@ -63,7 +63,7 @@ describe('Noteful API - Folders', function() {
 			let res;
 			return chai
 				.request(app)
-				.post('/folders')
+				.post('/api/folders')
 				.send(newFolder)
 				.then(function(_res) {
 					res = _res;
@@ -73,14 +73,14 @@ describe('Noteful API - Folders', function() {
 		});
 	});
 
-	describe('GET /folders/:id', function() {
+	describe('GET /api/folders/:id', function() {
 		it('should return correct folder', function() {
 			let data;
 			return Folder.findOne()
 				.then(_data => {
 					data = _data;
 
-					return chai.request(app).get(`/folders/${data.id}`);
+					return chai.request(app).get(`/api/folders/${data.id}`);
 				})
 				.then(res => {
 					expect(res).to.have.status(200);
@@ -99,25 +99,26 @@ describe('Noteful API - Folders', function() {
 		it('should return error when id is not valid', function() {
 			return chai
 				.request(app)
-				.get('/folders/not-valid')
+				.get('/api/folders/not-valid')
 				.then(res => {
 					expect(res).to.have.status(400);
 				});
 		});
 	});
 
-	describe('GET /folders/', function() {
-		return Promise.all([Folder.find(), chai.request(app).get('/folders')]).then(
-			([data, res]) => {
-				expect(res).to.have.status(201);
-				expect(res).to.be.json;
-				expect(res.body).to.be.an('array');
-				expect(res.body).to.have.length(data.length);
-			}
-		);
+	describe('GET /api/folders/', function() {
+		return Promise.all([
+			Folder.find(),
+			chai.request(app).get('/api/folders')
+		]).then(([data, res]) => {
+			expect(res).to.have.status(201);
+			expect(res).to.be.json;
+			expect(res.body).to.be.an('array');
+			expect(res.body).to.have.length(data.length);
+		});
 	});
 
-	describe('PUT /folders/:id', function() {
+	describe('PUT /api/folders/:id', function() {
 		it('should update and return item with new data when provided valid data', function() {
 			const updateFolder = {
 				name: 'Annie Lennox'
@@ -130,7 +131,7 @@ describe('Noteful API - Folders', function() {
 
 					return chai
 						.request(app)
-						.put(`/folders/${folder.id}`)
+						.put(`/api/folders/${folder.id}`)
 						.send(updateFolder);
 				})
 				.then(function(_res) {

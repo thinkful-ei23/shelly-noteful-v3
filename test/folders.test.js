@@ -151,7 +151,7 @@ describe('Noteful API - Folders', function() {
 		});
 	});
 
-	describe('DELETE /folders/:id', function() {
+	describe('DELETE /api/folders/:id', function() {
 		it('should delete and return status 204', function() {
 			let data;
 			let res;
@@ -159,7 +159,7 @@ describe('Noteful API - Folders', function() {
 				.then(_data => {
 					data = _data;
 
-					return chai.request(app).delete(`/folders/${data.id}`);
+					return chai.request(app).delete(`/api/folders/${data.id}`);
 				})
 				.then(function(_res) {
 					res = _res;

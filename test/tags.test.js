@@ -106,7 +106,7 @@ describe('Noteful API - Folders', function() {
 		});
 	});
 
-	describe('GET /api/tags/', function() {
+	describe('GET /api/tags', function() {
 		return Promise.all([Tag.find(), chai.request(app).get('/api/tags')]).then(
 			([data, res]) => {
 				expect(res).to.have.status(201);

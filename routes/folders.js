@@ -3,6 +3,13 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Folder = require('../models/folder');
 const Note = require('../models/note');
+const passport = require('passport');
+
+//protect endpoints
+router.use(
+	'/',
+	passport.authenticate('jwt', { session: false, failWithError: true })
+);
 
 //get all
 

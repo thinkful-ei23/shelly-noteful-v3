@@ -15,11 +15,12 @@ router.use(
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/', (req, res, next) => {
 	const { searchTerm, folderId, tagId } = req.query;
-	// console.log(req.query);
-	let filter = {};
+	const userId = req.user.id;
+	let filter = { userId };
 
 	if (searchTerm) {
-		filter.title = { $regex: searchTerm, $options: 'i' };
+		const re = new RegExp(searchTerm, 'i');
+		filter.$or = [{ title: re }, { content: re }];
 	}
 
 	if (folderId) {
@@ -43,7 +44,6 @@ router.get('/', (req, res, next) => {
 
 /* ========== GET/READ A SINGLE ITEM ========== */
 router.get('/:id', (req, res, next) => {
-	const { id } = req.params;
 	// console.log(id);
 	// parseInt() = if NaN, means not able to parse
 	// console.log(typeof id);
@@ -54,8 +54,16 @@ router.get('/:id', (req, res, next) => {
 	// 	err.status = 422;
 	// 	return next(err);
 	//}
+	const { id } = req.params;
+	const userId = req.user.id;
 
-	Note.findById(id)
+	if (!mongoose.Types.ObjectId.isValid(id)) {
+		const err = new Error('The `id` is not valid');
+		err.status = 400;
+		return next(err);
+	}
+
+	Note.findOne({ _id: id, userId })
 		.populate('tags')
 		.then(result => {
 			if (result) {
@@ -72,12 +80,14 @@ router.get('/:id', (req, res, next) => {
 /* ========== POST/CREATE AN ITEM ========== */
 router.post('/', (req, res, next) => {
 	const { title, content, folderId, tags } = req.body;
+	const userId = req.user.id;
 
 	const newObj = {
 		title,
 		content,
 		folderId,
-		tags
+		tags,
+		userId
 	};
 
 	if (!newObj.title) {
@@ -118,12 +128,14 @@ router.post('/', (req, res, next) => {
 router.put('/:id', (req, res, next) => {
 	const { title, content, folderId, tags } = req.body;
 	const { id } = req.params;
+	const userId = req.user.id;
 
 	const newObj = {
 		title,
 		content,
 		folderId,
-		tags
+		tags,
+		userId
 	};
 
 	if (!newObj.title) {
@@ -158,8 +170,9 @@ router.put('/:id', (req, res, next) => {
 /* ========== DELETE/REMOVE A SINGLE ITEM ========== */
 router.delete('/:id', (req, res, next) => {
 	const { id } = req.params;
+	const userId = req.user.id;
 
-	return Note.findByIdAndRemove(id)
+	return Note.findByIdAndRemove({_id: id, userId})
 		.then(result => {
 			res.status(204).json(result);
 		})

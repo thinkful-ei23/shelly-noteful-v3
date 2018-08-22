@@ -14,7 +14,8 @@ router.use(
 //get all
 
 router.get('/', (req, res, next) => {
-	let filter = {};
+	const userId = req.user.id;
+	let filter = { userId };
 
 	Folder.find(filter)
 		.sort({ name: 'asc' })
@@ -28,6 +29,7 @@ router.get('/', (req, res, next) => {
 
 router.get('/:id', (req, res, next) => {
 	const { id } = req.params;
+	const userId = req.user.id;
 
 	if (!mongoose.Types.ObjectId.isValid(id)) {
 		const err = new Error('Id is not valid');
@@ -35,7 +37,7 @@ router.get('/:id', (req, res, next) => {
 		return next(err);
 	}
 
-	Folder.findById(id)
+	Folder.findOne({ _id: id, userId })
 		.then(result => {
 			res.json(result);
 		})
@@ -46,7 +48,9 @@ router.get('/:id', (req, res, next) => {
 
 router.post('/', (req, res, next) => {
 	const { name } = req.body;
-	const newFolder = { name };
+	const userId = req.user.id;
+
+	const newFolder = { name, userId };
 
 	if (!newFolder.name) {
 		const err = new Error('Missing `name` in request body');
@@ -72,8 +76,9 @@ router.post('/', (req, res, next) => {
 
 router.put('/:id', (req, res, next) => {
 	const { id } = req.params;
+	const userId = req.user.id;
 	const { name } = req.body;
-	const updateFolder = { name };
+	const updateFolder = { name, userId };
 
 	if (!updateFolder.name) {
 		const err = new Error('Missing `name` in request body');
@@ -102,8 +107,9 @@ router.put('/:id', (req, res, next) => {
 
 router.delete('/:id', (req, res, next) => {
 	const { id } = req.params;
+	const userId = req.user.id;
 
-	Folder.findByIdAndRemove(id)
+	Folder.findByIdAndRemove({ _id: id, userId })
 		.then(result => {
 			return Note.update(
 				{ folderId: id },

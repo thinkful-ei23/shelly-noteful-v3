@@ -15,7 +15,8 @@ router.use(
 
 router.get('/', (req, res, next) => {
 	const { searchTerm } = req.query;
-	let filter = {};
+	const userId = req.user.id;
+	let filter = { userId };
 
 	if (searchTerm) {
 		filter.name = { $regex: searchTerm, $options: 'i' };
@@ -35,6 +36,7 @@ router.get('/', (req, res, next) => {
 
 router.get('/:id', (req, res, next) => {
 	const { id } = req.params;
+	const userId = req.user.id;
 
 	if (!mongoose.Types.ObjectId.isValid(id)) {
 		const err = new Error('Id is not valid');
@@ -42,7 +44,7 @@ router.get('/:id', (req, res, next) => {
 		return next(err);
 	}
 
-	Tag.findById(id)
+	Tag.findOne({ _id: id, userId })
 		.then(result => {
 			res.json(result);
 		})
@@ -53,7 +55,8 @@ router.get('/:id', (req, res, next) => {
 
 router.post('/', (req, res, next) => {
 	const { name } = req.body;
-	const newTag = { name };
+	const userId = req.user.id;
+	const newTag = { name, userId };
 
 	if (!newTag.name) {
 		const err = new Error('Missing `name` in request body');
@@ -79,7 +82,9 @@ router.post('/', (req, res, next) => {
 router.put('/:id', (req, res, next) => {
 	const { id } = req.params;
 	const { name } = req.body;
-	const updateTag = { name };
+	const userId = req.user.id;
+
+	const updateTag = { name, userId };
 
 	if (!updateTag.name) {
 		const err = new Error('Missing `name` in body request');
@@ -93,7 +98,7 @@ router.put('/:id', (req, res, next) => {
 		return next(err);
 	}
 
-	Tag.findByIdAndUpdate(id, updateTag, { new: true })
+	Tag.findByIdAndUpdate({ _id: id, userId }, updateTag, { new: true })
 		.then(result => {
 			res.json(result);
 		})
@@ -108,7 +113,9 @@ router.put('/:id', (req, res, next) => {
 
 router.delete('/:id', (req, res, next) => {
 	const { id } = req.params;
-	Tag.findByIdAndRemove(id)
+	const userId = req.user.id;
+
+	Tag.findByIdAndRemove({ _id: id, userId })
 		.then(result => {
 			return Note.update(
 				{ tags: id },
@@ -117,9 +124,7 @@ router.delete('/:id', (req, res, next) => {
 			);
 		})
 		.then(result => {
-			res
-				.status(204)
-				.json('deleted');
+			res.status(204).json('deleted');
 		})
 		.catch(err => {
 			next(err);

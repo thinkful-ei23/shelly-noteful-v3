@@ -160,7 +160,7 @@ router.put('/:id', (req, res, next) => {
 		});
 	}
 
-	Note.findByIdAndUpdate(id, newObj, { new: true })
+	Note.findByIdAndUpdate({ _id: id, userId }, newObj, { new: true })
 		.then(result => {
 			res.json(result);
 		})
@@ -172,7 +172,7 @@ router.delete('/:id', (req, res, next) => {
 	const { id } = req.params;
 	const userId = req.user.id;
 
-	return Note.findByIdAndRemove({_id: id, userId})
+	return Note.findByIdAndRemove({ _id: id, userId })
 		.then(result => {
 			res.status(204).json(result);
 		})

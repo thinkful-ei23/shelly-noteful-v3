@@ -3,14 +3,54 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const Note = require('../models/note');
 const passport = require('passport');
+
+const Note = require('../models/note');
+const Folder = require('../models/folder');
+const Tag = require('../models/tags');
 
 //protect endpoints
 router.use(
 	'/',
 	passport.authenticate('jwt', { session: false, failWithError: true })
 );
+
+function validateFolderId(folderId, userId) {
+	if (folderId === undefined) {
+		return Promise.resolve();
+	}
+
+	if (!mongoose.Types.ObjectId.isValid(folderId)) {
+		const err = new Error('The `folderId` is not valid');
+		err.status = 400;
+		return Promise.reject(err);
+	}
+	return Folder.count({ _id: folderId, userId }).then(count => {
+		if (count === 0) {
+			const err = new Error('The `folderId` is not valid');
+			err.status = 400;
+			return Promise.reject(err);
+		}
+	});
+}
+
+function validateTagIds(tags, userId) {
+	if (tags === undefined) {
+		return Promise.resolve();
+	}
+	if (!Array.isArray(tags)) {
+		const err = new Error('The `tags` must be an array');
+		err.status = 400;
+		return Promise.reject(err);
+	}
+	return Tag.find({ $and: [{ _id: { $in: tags }, userId }] }).then(results => {
+		if (tags.length !== results.length) {
+			const err = new Error('The `tags` array contains an invalid id');
+			err.status = 400;
+			return Promise.reject(err);
+		}
+	});
+}
 
 /* ========== GET/READ ALL ITEMS ========== */
 router.get('/', (req, res, next) => {
@@ -33,7 +73,7 @@ router.get('/', (req, res, next) => {
 
 	Note.find(filter)
 		.populate('tags')
-		.sort({ updatedAt: 'desc' })
+		.sort({ updatedAt: 'asc' })
 		.then(results => {
 			res.json(results);
 		})
@@ -96,6 +136,10 @@ router.post('/', (req, res, next) => {
 		return next(err);
 	}
 
+	if (newObj.folderId === '') {
+		delete newObj.folderId;
+	}
+
 	if (!mongoose.Types.ObjectId.isValid(folderId)) {
 		const err = new Error('Folder Id not valid');
 		err.status = 400;
@@ -112,7 +156,11 @@ router.post('/', (req, res, next) => {
 		});
 	}
 
-	Note.create(newObj)
+	Promise.all([
+		validateFolderId(newObj.folderId, userId),
+		validateTagIds(newObj.tags, userId)
+	])
+		.then(() => Note.create(newObj))
 		.then(result => {
 			res
 				.location(`${req.originalUrl}/${result.id}`)
@@ -160,7 +208,15 @@ router.put('/:id', (req, res, next) => {
 		});
 	}
 
-	Note.findByIdAndUpdate({ _id: id, userId }, newObj, { new: true })
+	Promise.all([
+		validateFolderId(newObj.folderId, userId),
+		validateTagIds(newObj.tags, userId)
+	])
+		.then(() => {
+			return Note.findByIdAndUpdate({ _id: id, userId }, newObj, {
+				new: true
+			}).populate('tags');
+		})
 		.then(result => {
 			res.json(result);
 		})

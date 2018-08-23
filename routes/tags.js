@@ -118,7 +118,7 @@ router.delete('/:id', (req, res, next) => {
 	Tag.findByIdAndRemove({ _id: id, userId })
 		.then(result => {
 			return Note.update(
-				{ tags: id },
+				{ tags: id, userId },
 				{ $pull: { tags: id } },
 				{ multi: true }
 			);

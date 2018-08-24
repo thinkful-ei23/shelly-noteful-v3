@@ -1,25 +1,39 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const mongoose = require('mongoose');
+const { JWT_SECRET } = require('../config');
+const jwt = require('jsonwebtoken');
 
 const app = require('../server');
 const { TEST_MONGODB_URI } = require('../config');
 
 const Tag = require('../models/tags');
-const seedTag = require('../db/seed/folders');
+const seedTag = require('../db/seed/tags');
+const User = require('../models/user');
+const seedUsers = require('../db/seed/users');
 
 const expect = chai.expect;
 chai.use(chaiHttp);
 
-describe('Noteful API - Folders', function() {
+describe('Noteful API - Tags', function() {
 	before(function() {
 		return mongoose
 			.connect(TEST_MONGODB_URI)
 			.then(() => mongoose.connection.db.dropDatabase());
 	});
 
+	let token;
+	let user;
+
 	beforeEach(function() {
-		return Tag.insertMany(seedTag);
+		return Promise.all([
+			User.insertMany(seedUsers),
+			Tag.insertMany(seedTag),
+			Tag.createIndexes()
+		]).then(([users]) => {
+			user = users[0];
+			token = jwt.sign({ user }, JWT_SECRET, { subject: user.username });
+		});
 	});
 
 	this.afterEach(function() {
@@ -30,7 +44,7 @@ describe('Noteful API - Folders', function() {
 		return mongoose.disconnect();
 	});
 
-	describe('POST /api/tags', function() {
+	describe.only('POST /api/tags', function() {
 		it('should create and return a new item when provided valid data', function() {
 			const newTag = { name: 'James Earl Jones' };
 
@@ -38,6 +52,7 @@ describe('Noteful API - Folders', function() {
 			return chai
 				.request(app)
 				.post('/api/tags')
+				.set('Authorization', `Bearer ${token}`)
 				.send(newTag)
 				.then(function(_res) {
 					res = _res;
@@ -45,7 +60,13 @@ describe('Noteful API - Folders', function() {
 					expect(res).to.have.header('location');
 					expect(res).to.be.json;
 					expect(res.body).to.be.a('object');
-					expect(res.body).to.have.keys('name', 'createdAt', 'updatedAt', 'id');
+					expect(res.body).to.have.keys(
+						'name',
+						'createdAt',
+						'updatedAt',
+						'id',
+						'userId'
+					);
 
 					return Tag.findById(res.body.id);
 				})
@@ -64,6 +85,7 @@ describe('Noteful API - Folders', function() {
 			return chai
 				.request(app)
 				.post('/api/tags')
+				.set('Authorization', `Bearer ${token}`)
 				.send(newFolder)
 				.then(function(_res) {
 					res = _res;
@@ -73,21 +95,29 @@ describe('Noteful API - Folders', function() {
 		});
 	});
 
-	describe('GET /api/tags/:id', function() {
-		it('should return correct folder', function() {
+	describe.only('GET /api/tags/:id', function() {
+		it('should return correct tag', function() {
 			let data;
 			return Tag.findOne()
 				.then(_data => {
 					data = _data;
-
-					return chai.request(app).get(`/api/tags/${data.id}`);
+					return chai
+						.request(app)
+						.get(`/api/tags/${data.id}`)
+						.set('Authorization', `Bearer ${token}`);
 				})
 				.then(res => {
 					expect(res).to.have.status(200);
 					expect(res).to.be.json;
 
 					expect(res.body).to.be.an('object');
-					expect(res.body).to.have.keys('id', 'name', 'createdAt', 'updatedAt');
+					expect(res.body).to.have.keys(
+						'id',
+						'name',
+						'createdAt',
+						'updatedAt',
+						'userId'
+					);
 
 					expect(res.body.id).to.equal(data.id);
 					expect(res.body.name).to.equal(data.name);
@@ -100,21 +130,52 @@ describe('Noteful API - Folders', function() {
 			return chai
 				.request(app)
 				.get('/api/tags/not-valid')
+				.set('Authorization', `Bearer ${token}`)
 				.then(res => {
 					expect(res).to.have.status(400);
 				});
 		});
 	});
 
-	describe('GET /api/tags', function() {
-		return Promise.all([Tag.find(), chai.request(app).get('/api/tags')]).then(
-			([data, res]) => {
-				expect(res).to.have.status(201);
+	describe.only('GET /api/tags', function() {
+		it('should return correct number of tags', function() {
+			const dbPromise = Tag.find({ userId: user.id });
+			const apiPromise = chai
+				.request(app)
+				.get('/api/tags')
+				.set('Authorization', `Bearer ${token}`);
+
+			return Promise.all([dbPromise, apiPromise]).then(([data, res]) => {
+				expect(res).to.have.status(200);
 				expect(res).to.be.json;
 				expect(res.body).to.be.an('array');
 				expect(res.body).to.have.length(data.length);
-			}
-		);
+			});
+		});
+
+		it('should return a list with the correct fields', function() {
+			const dbPromise = Tag.find({ userId: user.id });
+			const apiPromise = chai
+				.request(app)
+				.get('/api/tags')
+				.set('Authorization', `Bearer ${token}`);
+
+			return Promise.all([dbPromise, apiPromise]).then(([data, res]) => {
+				expect(res).to.have.status(200);
+				expect(res).to.be.json;
+				expect(res.body).to.be.an('array');
+				res.body.forEach(function(item) {
+					expect(item).to.be.an('object');
+					expect(item).to.have.keys(
+						'id',
+						'name',
+						'userId',
+						'createdAt',
+						'updatedAt'
+					);
+				});
+			});
+		});
 	});
 
 	describe('PUT /api/tags/:id', function() {
@@ -131,6 +192,7 @@ describe('Noteful API - Folders', function() {
 					return chai
 						.request(app)
 						.put(`/api/tags/${folder.id}`)
+						.set('Authorization', `Bearer ${token}`)
 						.send(updateTag);
 				})
 				.then(function(_res) {
@@ -158,7 +220,10 @@ describe('Noteful API - Folders', function() {
 				.then(_data => {
 					data = _data;
 
-					return chai.request(app).delete(`/api/tags/${data.id}`);
+					return chai
+						.request(app)
+						.delete(`/api/tags/${data.id}`)
+						.set('Authorization', `Bearer ${token}`);
 				})
 				.then(function(_res) {
 					res = _res;

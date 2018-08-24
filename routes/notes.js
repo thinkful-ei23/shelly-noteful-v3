@@ -192,10 +192,14 @@ router.put('/:id', (req, res, next) => {
 		return next(err);
 	}
 
-	if (!mongoose.Types.ObjectId.isValid(folderId)) {
-		const err = new Error('Folder Id is not valid');
-		err.status = 400;
-		return next(err);
+	if (folderId) {
+		if (!mongoose.Types.ObjectId.isValid(folderId)) {
+			const err = new Error('Folder Id is not valid');
+			err.status = 400;
+			return next(err);
+		}
+	} else {
+		delete newObj.folderId;
 	}
 
 	if (tags) {
@@ -206,6 +210,8 @@ router.put('/:id', (req, res, next) => {
 				return next(err);
 			}
 		});
+	} else {
+		delete newObj.tagId;
 	}
 
 	Promise.all([

@@ -231,24 +231,6 @@ describe.only('Noteful API - Users', function() {
 						expect(res.body.message).to.equal('The username already exists');
 					});
 			});
-
-			// it('Should trim fullname', function() {
-			// 	const testUser = {
-			// 		username: '12nameof',
-			// 		fullName: 'Sam   ',
-			// 		password: 'fejaoif123'
-			// 	};
-			// 	return chai
-			// 		.request(app)
-			// 		.post('/api/users')
-			// 		.send(testUser)
-			// 		.then(res => {
-			// 			expect(res).to.have.status(422);
-			// 			expect(res.body.message).to.equal(
-			// 				'There is whitespace at beginning or end'
-			// 			);
-			// 		});
-			// });
 		});
 	});
 });
